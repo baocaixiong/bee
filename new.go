@@ -101,26 +101,19 @@ func createApp(cmd *Command, args []string) {
 
 	os.MkdirAll(apppath, 0755)
 	fmt.Println(apppath + string(path.Separator))
-	os.Mkdir(path.Join(apppath, "conf"), 0755)
-	fmt.Println(path.Join(apppath, "conf") + string(path.Separator))
-	os.Mkdir(path.Join(apppath, "controllers"), 0755)
-	fmt.Println(path.Join(apppath, "controllers") + string(path.Separator))
-	os.Mkdir(path.Join(apppath, "models"), 0755)
-	fmt.Println(path.Join(apppath, "models") + string(path.Separator))
-	os.Mkdir(path.Join(apppath, "routers"), 0755)
-	fmt.Println(path.Join(apppath, "routers") + string(path.Separator))
-	os.Mkdir(path.Join(apppath, "tests"), 0755)
-	fmt.Println(path.Join(apppath, "tests") + string(path.Separator))
-	os.Mkdir(path.Join(apppath, "static"), 0755)
-	fmt.Println(path.Join(apppath, "static") + string(path.Separator))
-	os.Mkdir(path.Join(apppath, "static", "js"), 0755)
-	fmt.Println(path.Join(apppath, "static", "js") + string(path.Separator))
-	os.Mkdir(path.Join(apppath, "static", "css"), 0755)
-	fmt.Println(path.Join(apppath, "static", "css") + string(path.Separator))
-	os.Mkdir(path.Join(apppath, "static", "img"), 0755)
-	fmt.Println(path.Join(apppath, "static", "img") + string(path.Separator))
-	fmt.Println(path.Join(apppath, "views") + string(path.Separator))
-	os.Mkdir(path.Join(apppath, "views"), 0755)
+
+	mkDir := mkDirFactory(apppath, 0755)
+	mkDir("conf")
+	mkDir("controllers")
+	mkDir("models")
+	mkDir("routers")
+	mkDir("tests")
+	mkDir("static")
+	mkDir("static", "css")
+	mkDir("static", "js")
+	mkDir("static", "img")
+	mkDir("views")
+
 	fmt.Println(path.Join(apppath, "conf", "app.conf"))
 	writetofile(path.Join(apppath, "conf", "app.conf"), strings.Replace(appconf, "{{.Appname}}", args[0], -1))
 
@@ -140,6 +133,14 @@ func createApp(cmd *Command, args []string) {
 	writetofile(path.Join(appname, "main.go"), strings.Replace(maingo, "{{.Appname}}", strings.Join(strings.Split(appname[len(appsrcpath):], string(path.Separator)), "/"), -1))
 
 	ColorLog("[SUCC] New application successfully created!\n")
+}
+
+func mkDirFactory(appPath string, mode os.FileMode) func(dirName ...string) {
+	return func(dirName ...string) {
+		joinedPath := path.Join(append([]string{appPath}, dirName...))
+		os.Mkdir(joinedPath, mode)
+		fmt.Println(joinedPath + string(path.Separator))
+	}
 }
 
 var appconf = `appname = {{.Appname}}
